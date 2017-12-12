@@ -28,7 +28,7 @@ func TestLock(t *testing.T) {
 	}
 
 	// marshal and encrypt
-	b, err := Key([]byte("This is my password for testing things")).Marshal(myconfig)
+	b, err := Key([]byte("This is my password for testing things")).Lock(myconfig)
 	checkerr(t, err)
 	t.Log("Your encrypted config data:")
 	t.Log(b)
@@ -89,14 +89,14 @@ func TestUnlockBadPassword(t *testing.T) {
 // Test for struct fields that are unable to be marshalled
 func TestBadJSON(t *testing.T) {
 	myconfig := testconfig2{}
-	_, err := Key([]byte("password123")).Marshal(myconfig)
+	_, err := Key([]byte("password123")).Lock(myconfig)
 	if err == nil {
 		t.Log("expected an error")
 		t.FailNow()
 	}
 	t.Log("Good error:", err)
 	myconfig3 := testconfig3{}
-	_, err = Key([]byte("password123")).Marshal(myconfig3)
+	_, err = Key([]byte("password123")).Lock(myconfig3)
 	if err == nil {
 		t.Log("expected an error")
 		t.FailNow()

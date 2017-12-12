@@ -13,6 +13,9 @@ const nonceSize = 24
 
 func (c Key) lock(b []byte) []byte {
 	key := []byte(c)
+	if len(key) < keySize {
+		key = append(key, []byte(pad[:keySize-len(key)])...)
+	}
 	naclKey := new([keySize]byte)
 	copy(naclKey[:], key[:keySize])
 	nonce := new([nonceSize]byte)
@@ -27,6 +30,9 @@ func (c Key) lock(b []byte) []byte {
 
 func (c Key) unlock(b []byte) []byte {
 	key := []byte(c)
+	if len(key) < keySize {
+		key = append(key, []byte(pad[:keySize-len(key)])...)
+	}
 	naclKey := new([keySize]byte)
 	copy(naclKey[:], key[:keySize])
 	nonce := new([nonceSize]byte)

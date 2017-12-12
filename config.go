@@ -13,7 +13,7 @@ import (
 type Key []byte
 
 // Lock acts like JSON Marshal, but only can be seen after using seconf.Unlock https://godoc.org/encoding/json#Marshal
-func (c Key) Marshal(v interface{}) (b []byte, err error) {
+func (c Key) Lock(v interface{}) (b []byte, err error) {
 	b, err = json.Marshal(v)
 	if err != nil {
 		return b, err

@@ -8,15 +8,19 @@ import (
 	"testing"
 )
 
+// config struct used for tests
 type testconfig1 struct {
 	Interface string
 	Port      int
 	Name      string
 }
 
+// should fail test
 type testconfig2 struct {
 	Bad func() error
 }
+
+// should fail test
 type testconfig3 struct {
 	AnotherBad chan int
 }

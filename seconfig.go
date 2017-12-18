@@ -58,10 +58,10 @@ func (c Key) UnlockRaw(data []byte) ([]byte, error) {
 }
 
 func hash(in []byte) [keySize]byte {
-	salt := []byte{42, 106, 123, 210, 71, 100, 10, 6}
+	salt := []byte{0x42, 0x9f, 0xbe, 0xde, 0xad, 0x0a, 0x23, 0x74}
 	N := 2 << 16
 	r := 8
-	p := 4
+	p := 1
 	b32, err := scrypt.Key(in, salt, N, r, p, keySize)
 	if err != nil {
 		panic(fmt.Sprintf("fatal: could not scrypt: %s", err))

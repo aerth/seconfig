@@ -1,7 +1,10 @@
 package seconfig
 
 import (
+	"fmt"
 	"io/ioutil"
+	"os"
+	"strings"
 	"testing"
 )
 
@@ -32,9 +35,13 @@ func TestLock(t *testing.T) {
 	checkerr(t, err)
 	t.Log("Your encrypted config data:")
 	t.Log(b)
-	// write to file
-	//err = ioutil.WriteFile("testdata/testconfig1.dat", b, 0600)
-	//checkerr(t, err)
+
+	// write to file if not exist
+	if _, err = os.Open("testdata/testconfig1.dat"); err == nil {
+		return
+	}
+	err = ioutil.WriteFile("testdata/testconfig1.dat", b, 0600)
+	checkerr(t, err)
 }
 
 func TestUnlock(t *testing.T) {
@@ -102,6 +109,69 @@ func TestBadJSON(t *testing.T) {
 		t.FailNow()
 	}
 	t.Log("Good error:", err)
+}
+
+func TestUnlockRaw(t *testing.T) {
+	// read encrypted data from file
+	code, err := ioutil.ReadFile("testdata/testconfig1.dat")
+	checkerr(t, err)
+
+	// unlock with pass phrase
+	b, err := Key([]byte("This is my password for testing things")).UnlockRaw(code)
+	if err != nil {
+		t.Log(err)
+		t.FailNow()
+	}
+
+	t.Log("raw decoded", string(b))
+}
+
+func TestUnlockNothing(t *testing.T) {
+	// read encrypted data from file
+	var code []byte
+
+	// unlock with pass phrase
+	b, err := Key([]byte("This is my password for testing things")).UnlockRaw(code)
+	if !strings.Contains(err.Error(), "check input") {
+		t.Logf("Expected error containing 'check input', got: %s %s", string(b), err)
+		t.Fail()
+	}
+
+	code = []byte{}
+
+	// unlock with pass phrase
+	b, err = Key([]byte("This is my password for testing things")).UnlockRaw(code)
+	if !strings.Contains(err.Error(), "check input") {
+		t.Logf("Expected error containing 'check input', got: %s", err)
+		t.Fail()
+	}
+
+	for i := 1; i < nonceSize; i++ {
+		code = append(code, byte(i))
+		// unlock with pass phrase
+		b, err = Key([]byte("This is my password for testing things")).UnlockRaw(code)
+		if !strings.Contains(err.Error(), "check input") {
+			t.Logf("%v Expected error containing 'check input', got: %s", i, err)
+			t.Fail()
+		}
+	}
+}
+
+func TestShortPassword(t *testing.T) {
+	b, err := Key([]byte("1")).Lock(struct {
+		X int `json:"x"`
+		Y int `json:"y"`
+	}{4, 2})
+	if err != nil {
+		t.Log(err)
+		t.FailNow()
+	}
+	b, err = Key([]byte("1")).UnlockRaw(b)
+	if err != nil {
+		t.Log(err)
+		t.FailNow()
+	}
+	fmt.Println(string(b))
 }
 
 // make life easier but ruin the log traceback

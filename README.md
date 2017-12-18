@@ -28,7 +28,7 @@ config := Config{
 Marshal and encrypt the config struct into a slice of encrypted bytes.  You will need the key provided here to access the data again.
 
 ```
-b, err := Key([]byte("your-pass-phrase")).Marshal(config)
+b, err := Key([]byte("your-pass-phrase")).Lock(config)
 ```
 
 #### **Step Three**
@@ -38,6 +38,12 @@ Decrypt and unmarshal the data into a config struct. The pass phrase must be cor
 ```
 myconfig := new(Config)
 err = Key([]byte("your-pass-phrase")).Unlock(b, &myconfig)
+```
 
+#### **Raw Decode**
 
+Decrypt the data into a raw bytes. It will be JSON encoded. The pass phrase must be correct.
+
+```
+b, err := Key([]byte("your-pass-phrase")).UnlockRaw(data)
 ```

@@ -7,14 +7,18 @@ import (
 	"golang.org/x/crypto/nacl/secretbox"
 )
 
-const pad = "Make your_password long^like this!"
+const oldpad = "Make your_password long^like this!"
+
+// Pad can be modified and probably should be for each version of your application.
+var Pad = oldpad
+
 const keySize = 32
 const nonceSize = 24
 
 func (c Key) lock(b []byte) []byte {
 	key := []byte(c)
 	if len(key) < keySize {
-		key = append(key, []byte(pad[:keySize-len(key)])...)
+		key = append(key, []byte(Pad[:keySize-len(key)])...)
 	}
 	naclKey := new([keySize]byte)
 	copy(naclKey[:], key[:keySize])
@@ -31,7 +35,7 @@ func (c Key) lock(b []byte) []byte {
 func (c Key) unlock(b []byte) []byte {
 	key := []byte(c)
 	if len(key) < keySize {
-		key = append(key, []byte(pad[:keySize-len(key)])...)
+		key = append(key, []byte(Pad[:keySize-len(key)])...)
 	}
 	naclKey := new([keySize]byte)
 	copy(naclKey[:], key[:keySize])

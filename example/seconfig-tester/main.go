@@ -19,9 +19,9 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"runtime"
 
-	"github.com/aerth/ppanic"
 	"github.com/aerth/seconfig"
 )
 
@@ -30,19 +30,14 @@ type data struct {
 	OS, Arch string
 }
 
-func init() {
-	// be sure to change pad
-	seconfig.Pad = "This is the default pad for this example."
-}
-
 func main() {
 	// lock data (in this case using OS and architecture)
 	println("Enter a dummy pass phrase. It will echo.")
-	key := "password"
+	key := []byte("password")
 	fmt.Scan(&key)
-	b, err := seconfig.Key(key).Lock(data{runtime.GOOS, runtime.GOARCH})
+	b, err := seconfig.Pad("This is the default pad for this example.").Key(key).Lock(data{runtime.GOOS, runtime.GOARCH})
 	if err != nil {
-		ppanic.Panic(err)
+		log.Fatal(err)
 	}
 	fmt.Printf("Encrypted data: \"%s\"\n", string(b))
 	fmt.Println()
@@ -50,9 +45,9 @@ func main() {
 	// unlock raw
 	println("Enter the same dummy pass phrase to unlock. It will echo.")
 	fmt.Scan(&key)
-	b = seconfig.Key(key).Raw(b)
+	b = seconfig.Pad("This is the default pad for this example.").Key(key).Raw(b)
 	if b == nil {
-		ppanic.Exit("wrong passphrase?")
+		log.Fatal("wrong passphrase?")
 	}
 	fmt.Printf("Decrypted data: \"%s\"\n", string(b))
 
@@ -60,7 +55,7 @@ func main() {
 	databyte := data{}
 	err = seconfig.Key(key).Unlock(b, &databyte)
 	if err != nil {
-		ppanic.Exit(err)
+		log.Fatal(err)
 	}
 	fmt.Printf("OS: %s\nArch: %s\n", databyte.OS, databyte.Arch)
 }

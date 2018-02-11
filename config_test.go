@@ -28,7 +28,7 @@ func TestLock(t *testing.T) {
 	}
 
 	// marshal and encrypt
-	b, err := Key([]byte("This is my password for testing things")).Lock(myconfig)
+	b, err := Key([]byte("This is my password for testing ")).Lock(myconfig)
 	checkerr(t, err)
 	t.Log("Your encrypted config data:")
 	t.Log(b)
@@ -47,7 +47,7 @@ func TestUnlock(t *testing.T) {
 	checkerr(t, err)
 
 	// unlock with pass phrase
-	err = Key([]byte("This is my password for testing things")).Unlock(b, &myconfig)
+	err = Key([]byte("This is my password for testing ")).Unlock(b, &myconfig)
 	checkerr(t, err)
 
 	// display config
@@ -76,7 +76,7 @@ func TestUnlockBadPassword(t *testing.T) {
 	myconfig := new(testconfig1)
 	b, err := ioutil.ReadFile("testdata/testconfig1.dat")
 	checkerr(t, err)
-	err = Key([]byte("This is the wrong password")).Unlock(b, &myconfig)
+	err = Key([]byte("This is the wrong password - - -")).Unlock(b, &myconfig)
 	if err == nil {
 		t.Log("Expected an error...")
 	}

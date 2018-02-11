@@ -18,31 +18,31 @@ import (
 type Key []byte
 
 // Lock acts like JSON Marshal, which contents can only be seen after using seconf.Unlock https://godoc.org/encoding/json#Marshal
-func (c Key) Lock(v interface{}) (b []byte, err error) {
+func (k Key) Lock(v interface{}) (b []byte, err error) {
 	b, err = json.Marshal(v)
 	if err != nil {
 		return b, err
 	}
-	return c.lock(b), nil
+	return k.lock(b), nil
 }
 
 // Unlock acts like JSON Unmarshal, but decrypting the data before unmarshaling. https://godoc.org/encoding/json#Unmarshal
-func (c Key) Unlock(data []byte, v interface{}) (err error) {
+func (k Key) Unlock(data []byte, v interface{}) (err error) {
 	if data == nil {
 		return fmt.Errorf("Nothing to decode")
 	}
-	if b := c.unlock(data); b != nil {
+	if b := k.unlock(data); b != nil {
 		return json.Unmarshal(b, v)
 	}
 	return fmt.Errorf("Wrong pass phrase?")
 }
 
 // Raw data as []byte
-func (c Key) Raw(data []byte) []byte {
+func (k Key) Raw(data []byte) []byte {
 	if data == nil || len(data) == 0 {
 		return nil
 	}
-	if b := c.unlock(data); b != nil {
+	if b := k.unlock(data); b != nil {
 		return b
 	}
 	return nil

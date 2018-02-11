@@ -7,10 +7,12 @@ Lock your program's config file
   * Needs security audit, code review.
   * Will most likely have breaking, backwards-incompatible-changes until stable.
   * It is up to your application to retrieve user input and handle hashing.
-  * Key size must be 32 bytes.
-  * Probably not safe to use yet.
+  * Key size must be 32 bytes. You can use the provided hash package to achieve this.
+  * Probably not safe to use yet. Pull requests welcome.
 
 ## **usage**
+
+You provide your own GetUserInput() method to receive password from input or environment
 
 #### **Step One**
 
@@ -37,6 +39,14 @@ config := Config{
 
 Marshal and encrypt the config struct into a slice of encrypted bytes.
 
+Use `github.com/aerth/seconf/hash` package:
+
+```
+// pick a salt. not []byte{0,4,2,8}.
+password := GetUserInput()
+hashed := hash.Scrypt([]byte(password), []byte{0, 4, 2, 8})
+```
+
 Implement your own **Hashing**:
 
 ```
@@ -58,11 +68,12 @@ Unmarshal the data into a config struct using **Unlock()**:
 
 ```
 myconfig := new(Config)
-err = seconfig.Key(GetUserInput()).Unlock(b, &myconfig)
+err := seconfig.Key(GetUserInput()).Unlock(b, &myconfig)
 ```
 
 or, decrypt using **Raw()**:
 
 ```
-b = seconfig.Key(GetUserInput()).Raw(b)
+locked := seconfig.Key(GetUserInput()).RawLock(b)
+unlocked := seconfig.Key(GetUserInput()).Raw(b)
 ```

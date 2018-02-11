@@ -1,8 +1,26 @@
+/*
+ * Copyright (c) 2017 aerth <aerth@riseup.net>
+ *
+ * Permission to use, copy, modify, and distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ */
+
 package seconfig
 
 import (
 	"io/ioutil"
 	"testing"
+
+	"github.com/aerth/seconfig/hash"
 )
 
 type testconfig1 struct {
@@ -37,6 +55,25 @@ func TestLock(t *testing.T) {
 	//checkerr(t, err)
 }
 
+func TestLockHash(t *testing.T) {
+
+	// initialize a config struct with data
+	myconfig := testconfig1{
+		Interface: "0.0.0.0",
+		Port:      8080,
+		Name:      "my server",
+	}
+
+	// marshal and encrypt
+	b, err := Key([]byte(hash.Scrypt([]byte("This is my password for testing things and its really long"), []byte{0, 4, 2, 8}))).Lock(myconfig)
+	checkerr(t, err)
+	t.Log("Your encrypted config data:")
+	t.Log(b)
+	//write to file
+	// err = ioutil.WriteFile("testdata/testconfig2.dat", b, 0600)
+	// checkerr(t, err)
+}
+
 func TestUnlock(t *testing.T) {
 
 	// initialize new empty config struct
@@ -48,6 +85,40 @@ func TestUnlock(t *testing.T) {
 
 	// unlock with pass phrase
 	err = Key([]byte("This is my password for testing ")).Unlock(b, &myconfig)
+	checkerr(t, err)
+
+	// display config
+	t.Log("Your config data:")
+	t.Logf("Interface: \"%s\"\n", myconfig.Interface)
+	t.Logf("Port: \"%v\"\n", myconfig.Port)
+	t.Logf("Name: \"%s\"\n", myconfig.Name)
+
+	// check fields
+	if myconfig.Interface != "0.0.0.0" {
+		t.Log("Expected interface to be 0.0.0.0")
+		t.Fail()
+	}
+	if myconfig.Port != 8080 {
+		t.Log("Expected port to be 8080, its:", myconfig.Port)
+		t.Fail()
+	}
+
+	if myconfig.Name != "my server" {
+		t.Log("Expected name to be \"my server\"")
+		t.Fail()
+	}
+}
+func TestUnlockHash(t *testing.T) {
+
+	// initialize new empty config struct
+	myconfig := new(testconfig1)
+
+	// read encrypted data from file
+	b, err := ioutil.ReadFile("testdata/testconfig2.dat")
+	checkerr(t, err)
+
+	// unlock with pass phrase
+	err = Key([]byte(hash.Scrypt([]byte("This is my password for testing things and its really long"), []byte{0, 4, 2, 8}))).Unlock(b, &myconfig)
 	checkerr(t, err)
 
 	// display config

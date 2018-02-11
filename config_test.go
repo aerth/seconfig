@@ -17,6 +17,7 @@
 package seconfig
 
 import (
+	"bytes"
 	"io/ioutil"
 	"testing"
 
@@ -72,6 +73,24 @@ func TestLockHash(t *testing.T) {
 	//write to file
 	// err = ioutil.WriteFile("testdata/testconfig2.dat", b, 0600)
 	// checkerr(t, err)
+}
+
+func TestRawLockHash(t *testing.T) {
+	message := []byte("hello world")
+	b := Key([]byte(hash.Scrypt([]byte("This is my password for testing things and its really long"), []byte{0, 1, 0, 8}))).RawLock(message)
+	t.Log("Your encrypted data:")
+	t.Log(b)
+	//write to file
+	//err := ioutil.WriteFile("testdata/testconfig3.dat", b, 0600)
+	//checkerr(t, err)
+
+	b2, err := ioutil.ReadFile("testdata/testconfig3.dat")
+	checkerr(t, err)
+	unlocked := Key([]byte(hash.Scrypt([]byte("This is my password for testing things and its really long"), []byte{0, 1, 0, 8}))).Raw(b2)
+	if bytes.Compare(message, unlocked) != 0 {
+		t.Logf("Expected %x, Got %x", message, unlocked)
+		t.Fail()
+	}
 }
 
 func TestUnlock(t *testing.T) {

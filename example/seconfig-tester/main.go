@@ -32,14 +32,14 @@ type data struct {
 }
 
 func main() {
-	log.SetFlags(log.Lshortfile)
+	log.SetFlags(0)
 	HashUsage()
 	PadUsage()
 }
 func PadUsage() {
 	println("\n\nPad Method\n\n")
 	// lock data (in this case using OS and architecture)
-	padlock := seconfig.Pad("This is the default pad for this example.")
+	padlock := seconfig.Pad("This is the default pad for this")
 	println("Enter a dummy pass phrase. It will echo.")
 	key := []byte{}
 	fmt.Scan(&key)

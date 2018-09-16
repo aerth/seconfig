@@ -171,8 +171,8 @@ func TestUnlockBadPassword(t *testing.T) {
 	if err == nil {
 		t.Log("Expected an error...")
 	}
-	if err.Error() != "Wrong pass phrase?" {
-		t.Log("Expected error: \"Wrong pass phrase?\"")
+	if err != ErrWrongKey {
+		t.Log("Expected error:", ErrWrongKey)
 		t.Log("Got error:", err)
 	}
 }

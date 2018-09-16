@@ -28,10 +28,19 @@ import (
 const keySize = 32
 const nonceSize = 24
 
+// Pad is one way to achieve a 32 byte key from shorter input (such as a pin or password)
+//
+//     b := Pad([]byte("my 32 bytes of padding used systemwide").Key(shorterUserKey)).Lock(thing)
+//     Pad([]byte("my 32 bytes of padding used systemwide").Key(shorterUserKey)).Unlock(b, thing)
+//
+//
 type Pad []byte
 
 // Key padding for non hashers
 func (p Pad) Key(key []byte) Key {
+	if len(p) != keySize {
+		panic("pad < 32")
+	}
 	if len(key) < keySize { // padding
 		key = append(key, []byte(p[:keySize-len(key)])...)
 	}

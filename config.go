@@ -42,18 +42,30 @@ func (k Key) Lock(v interface{}) (b []byte, err error) {
 	return k.lock(b), nil
 }
 
-// Unlock acts like JSON Unmarshal, but decrypting the data before unmarshaling. https://godoc.org/encoding/json#Unmarshal
+// ErrWrongKey is returned by Unlock if no bytes were unencrypted
+var ErrWrongKey = fmt.Errorf("wrong key?")
+
+// ErrNoData is returned by Unlock if len(input) is zero
+var ErrNoData = fmt.Errorf("no data")
+
+// Unlock acts like JSON Unmarshal, but decrypting the data before unmarshaling.
+// It returns ErrNoData if data is nil, or ErrWrongKey if unencryption failed.
+// Finally, it returns JSON errors. https://godoc.org/encoding/json#Unmarshal
 func (k Key) Unlock(data []byte, v interface{}) (err error) {
-	if data == nil {
-		return fmt.Errorf("Nothing to decode")
+	if len(data) == 0 {
+		return ErrNoData
 	}
-	if b := k.unlock(data); b != nil {
-		return json.Unmarshal(b, v)
+
+	b := k.unlock(data)
+
+	if b == nil {
+		return ErrWrongKey
+
 	}
-	return fmt.Errorf("Wrong pass phrase?")
+	return json.Unmarshal(b, v)
 }
 
-// Raw data as []byte
+// Raw unlocks, skipping json marshalling, returning unencrypted data as []byte, or nil if decryption failed.
 func (k Key) Raw(data []byte) []byte {
 	if data == nil || len(data) == 0 {
 		return nil
@@ -64,33 +76,37 @@ func (k Key) Raw(data []byte) []byte {
 	return nil
 }
 
-// RawLock contents
+// RawLock skips json marshalling, and returns the encrypted byte slice
 func (k Key) RawLock(contents []byte) []byte {
 	return k.lock(contents)
 }
 
-// some aliases for interfaces (subject to change)
-
+// Unmarshal is an alias for Unlock to implement your interface
 func (k Key) Unmarshal(data []byte, v interface{}) error {
 	return k.Unlock(data, v)
 }
 
+// Read is an alias for Unlock to implement your interface
 func (k Key) Read(data []byte, v interface{}) error {
 	return k.Unlock(data, v)
 }
 
+// Deserialize is an alias for Unlock to implement your interface
 func (k Key) Deserialize(data []byte, v interface{}) error {
 	return k.Unlock(data, v)
 }
 
+// Marshal is an alias for Lock to implement your interface
 func (k Key) Marshal(v interface{}) (b []byte, err error) {
 	return k.Lock(v)
 }
 
+// Write is an alias for Lock to implement your interface
 func (k Key) Write(v interface{}) (b []byte, err error) {
 	return k.Lock(v)
 }
 
+// Serialize is an alias for Lock to implement your interface
 func (k Key) Serialize(v interface{}) (b []byte, err error) {
 	return k.Lock(v)
 }

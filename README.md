@@ -1,5 +1,7 @@
 # seconfig
 
+[![GoDoc](https://godoc.org/github.com/aerth/seconfig?status.svg)](https://godoc.org/github.com/aerth/seconfig)
+
 Lock your program's config file
 
 ## **warnings**

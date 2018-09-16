@@ -24,8 +24,8 @@ import (
 // how to make a easy to use universal encrypted config file?
 
 // Key holds the password. You can use it like this (but with 32 bytes for keys):
-//   seconf.Key([]byte("mypassword").Marshal(myConfigStruct)
-//   seconf.Key([]byte("mypassword").Unmarshal(myEncryptedConfig)
+//   seconf.Key([]byte("my 32 byte key").Marshal(myConfigStruct)
+//   seconf.Key([]byte("my 32 byte key").Unmarshal(myEncryptedConfig)
 //
 // It is up to the application to validate the key.
 // Key size is 32 bytes.

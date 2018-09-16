@@ -41,30 +41,29 @@ func PadUsage() {
 	// lock data (in this case using OS and architecture)
 	padlock := seconfig.Pad("This is the default pad for this example.")
 	println("Enter a dummy pass phrase. It will echo.")
-	key := []byte("password")
+	key := []byte{}
 	fmt.Scan(&key)
 	b, err := padlock.Key(key).Lock(data{runtime.GOOS, runtime.GOARCH})
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("Encrypted data: \"%s\"\n", string(b))
-	fmt.Println()
+	fmt.Printf("Encrypted data: \"0x%x\"\n", b)
 
 	// unlock raw
 	println("Enter the same dummy pass phrase to unlock. It will echo.")
 	fmt.Scan(&key)
-	b = padlock.Key(key).Raw(b)
-	if b == nil {
+	unlocked := padlock.Key(key).Raw(b)
+	if unlocked == nil {
 		log.Println("wrong passphrase?")
 		return
 	}
-	fmt.Printf("Decrypted (raw) data: \"%s\"\n", string(b))
+	fmt.Printf("Decrypted (raw) data: \"%s\"\n", unlocked)
 
 	// unlock a struct
 	databyte := data{}
 	err = padlock.Key(key).Unlock(b, &databyte)
 	if err != nil {
-		log.Println("pad error:", err)
+		log.Println("unlock error:", err)
 		return
 	}
 	fmt.Printf("OS: %s\nArch: %s\n", databyte.OS, databyte.Arch)
@@ -82,8 +81,7 @@ func HashUsage() {
 		return
 	}
 	key = []byte{}
-	fmt.Printf("Encrypted data: \"%s\"\n", string(b))
-	fmt.Println()
+	fmt.Printf("Encrypted data: \"0x%x\"\n", b)
 
 	// unlock raw
 	println("Enter the same dummy pass phrase to unlock. It will echo.")

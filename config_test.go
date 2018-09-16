@@ -18,6 +18,7 @@ package seconfig
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"testing"
 
@@ -199,5 +200,38 @@ func checkerr(t *testing.T, err error) {
 	if err != nil {
 		t.Log(err)
 		t.FailNow()
+	}
+}
+
+func TestKeySize(t *testing.T) {
+	defer testPanic(t)()
+	myshortkey := []byte("hunter123")
+	myconfig := "JustASimpleApiKey"
+	b, err := Key(myshortkey).Lock(myconfig)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Printf("0x%x\n", b)
+	t.FailNow()
+}
+func TestKeySizeRead(t *testing.T) {
+	defer testPanic(t)()
+	myshortkey := []byte("hunter123")
+	myconfig := new(testconfig1)
+	encrypted, err := ioutil.ReadFile("testdata/testconfig1.dat")
+	checkerr(t, err)
+	err = Key(myshortkey).Unlock(encrypted, &myconfig)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(myconfig)
+	t.FailNow()
+}
+
+func testPanic(t *testing.T) func() {
+	return func() {
+		if r := recover(); r == nil {
+			t.Errorf("expected panic")
+		}
 	}
 }

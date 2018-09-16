@@ -1,0 +1,16 @@
+{
+  "author": "aerth",
+  "bugs": {
+    "url": "https://github.com/aerth/seconfig"
+  },
+  "gx": {
+    "dvcsimport": "github.com/aerth/seconfig"
+  },
+  "gxVersion": "0.12.1",
+  "language": "go",
+  "license": "",
+  "name": "seconfig",
+  "releaseCmd": "git commit -a -m \"gx publish $VERSION\"",
+  "version": "0.0.0"
+}
+

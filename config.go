@@ -23,12 +23,12 @@ import (
 
 // how to make a easy to use universal encrypted config file?
 
-// Key holds the password. You can use it like this:
+// Key holds the password. You can use it like this (but with 32 bytes for keys):
 //   seconf.Key([]byte("mypassword").Marshal(myConfigStruct)
 //   seconf.Key([]byte("mypassword").Unmarshal(myEncryptedConfig)
 //
 // It is up to the application to validate the key.
-// Key size is 32 bits.
+// Key size is 32 bytes.
 // If a key is too small, it will be padded using seconfig.Pad, which should be customized per application.
 // If a key is too large, it will be truncated.
 type Key []byte
@@ -67,4 +67,30 @@ func (k Key) Raw(data []byte) []byte {
 // RawLock contents
 func (k Key) RawLock(contents []byte) []byte {
 	return k.lock(contents)
+}
+
+// some aliases for interfaces (subject to change)
+
+func (k Key) Unmarshal(data []byte, v interface{}) error {
+	return k.Unlock(data, v)
+}
+
+func (k Key) Read(data []byte, v interface{}) error {
+	return k.Unlock(data, v)
+}
+
+func (k Key) Deserialize(data []byte, v interface{}) error {
+	return k.Unlock(data, v)
+}
+
+func (k Key) Marshal(v interface{}) (b []byte, err error) {
+	return k.Lock(v)
+}
+
+func (k Key) Write(v interface{}) (b []byte, err error) {
+	return k.Lock(v)
+}
+
+func (k Key) Serialize(v interface{}) (b []byte, err error) {
+	return k.Lock(v)
 }

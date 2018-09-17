@@ -50,8 +50,7 @@ func TestLock(t *testing.T) {
 	// marshal and encrypt
 	b, err := Key([]byte("This is my password for testing ")).Lock(myconfig)
 	checkerr(t, err)
-	t.Log("Your encrypted config data:")
-	t.Log(b)
+	t.Logf("Your encrypted config data: %x\n", b)
 	// write to file
 	//err = ioutil.WriteFile("testdata/testconfig1.dat", b, 0600)
 	//checkerr(t, err)
@@ -69,8 +68,7 @@ func TestLockHash(t *testing.T) {
 	// marshal and encrypt
 	b, err := Key([]byte(hash.Scrypt([]byte("This is my password for testing things and its really long"), []byte{0, 4, 2, 8}))).Lock(myconfig)
 	checkerr(t, err)
-	t.Log("Your encrypted config data:")
-	t.Log(b)
+	t.Logf("Your encrypted config data: %x\n", b)
 	//write to file
 	// err = ioutil.WriteFile("testdata/testconfig2.dat", b, 0600)
 	// checkerr(t, err)
@@ -79,8 +77,7 @@ func TestLockHash(t *testing.T) {
 func TestRawLockHash(t *testing.T) {
 	message := []byte("hello world")
 	b := Key([]byte(hash.Scrypt([]byte("This is my password for testing things and its really long"), []byte{0, 1, 0, 8}))).RawLock(message)
-	t.Log("Your encrypted data:")
-	t.Log(b)
+	t.Logf("Your encrypted config data: %x\n", b)
 	//write to file
 	//err := ioutil.WriteFile("testdata/testconfig3.dat", b, 0600)
 	//checkerr(t, err)
@@ -97,7 +94,7 @@ func TestRawLockHash(t *testing.T) {
 func TestUnlock(t *testing.T) {
 
 	// initialize new empty config struct
-	myconfig := new(testconfig1)
+	myconfig := testconfig1{}
 
 	// read encrypted data from file
 	b, err := ioutil.ReadFile("testdata/testconfig1.dat")
@@ -138,7 +135,7 @@ func TestUnlockHash(t *testing.T) {
 	checkerr(t, err)
 
 	// unlock with pass phrase
-	err = Key([]byte(hash.Scrypt([]byte("This is my password for testing things and its really long"), []byte{0, 4, 2, 8}))).Unlock(b, &myconfig)
+	err = Key([]byte(hash.Scrypt([]byte("This is my password for testing things and its really long"), []byte{0, 4, 2, 8}))).Unlock(b, myconfig)
 	checkerr(t, err)
 
 	// display config
@@ -167,7 +164,7 @@ func TestUnlockBadPassword(t *testing.T) {
 	myconfig := new(testconfig1)
 	b, err := ioutil.ReadFile("testdata/testconfig1.dat")
 	checkerr(t, err)
-	err = Key([]byte("This is the wrong password - - -")).Unlock(b, &myconfig)
+	err = Key([]byte("This is the wrong password - - -")).Unlock(b, myconfig)
 	if err == nil {
 		t.Log("Expected an error...")
 	}
@@ -220,7 +217,7 @@ func TestKeySizeRead(t *testing.T) {
 	myconfig := new(testconfig1)
 	encrypted, err := ioutil.ReadFile("testdata/testconfig1.dat")
 	checkerr(t, err)
-	err = Key(myshortkey).Unlock(encrypted, &myconfig)
+	err = Key(myshortkey).Unlock(encrypted, myconfig)
 	if err != nil {
 		t.Fatal(err)
 	}
